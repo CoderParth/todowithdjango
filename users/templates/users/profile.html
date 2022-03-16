@@ -1,0 +1,179 @@
+{% extends 'todoapp/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container">
+	<div class="row">
+	  <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+		<div class="card border-0 shadow rounded-3 my-5">
+		  <div class="card-body p-4 p-sm-5">
+			<div class=" image d-flex flex-column justify-content-center align-items-center">
+				<button class="btn btn-light">
+				<img src="{{ user.profile.image.url }}"  class="rounded-circle" height="200" width="200" />
+				</button>
+				<span class="font-weight-bold mt-3 "> {{ user.username }} </span>
+				<div class="d-flex flex-row justify-content-center align-items-center mt-3">
+					 <span class="font-weight-bold">{{ user.task_set.count }}
+						 <span class="font-weight-normal">Tasks</span>
+						</span>
+					</div>
+					<div class=" d-flex mt-2"> <button class="btn1 btn-dark edit-button">Edit Profile</button> </div>
+				</div>
+				<div class="edit-profile" style="display: none;">
+				<form method="POST" enctype="multipart/form-data" action="{% url 'edit-profile' %}">
+				{% csrf_token %}
+				{{ u_form|crispy }}
+				{{ p_form|crispy }}
+				<button type="submit" class="btn btn-outline-secondary"> Update </button>
+				</form>
+				<button class="cancel-edit btn btn-outline-dark"> Cancel </button>
+				</div>
+
+<div class="search-task mt-3 ml-1">
+
+		<form method="GET" class="form-inline">
+			<div class="input-group">
+			<div class="input-group-prepend">
+<input class="form-control mr-sm-2 " name="search-input" value="{{ search_input }}"
+type="search" placeholder="Search Tasks" aria-label="Search Tasks">
+<button class="btn btn-outline-success my-0 my-sm-0 mr-1 ml-1" type="submit">Search</button>
+</form>
+
+<div class="clear-task">
+	<form method="GET">
+	<button type="submit" name="clear" value="clear" class="btn btn-outline-dark"> Clear </button>
+
+</form>
+</div>
+</div>
+
+
+
+
+</div>
+
+</div>
+<div class="container mt-3 ml-2">
+<form method="GET">
+	<label for="sort"> Sort </label>
+	<select name="sort" id="sort" onchange="this.form.submit()">
+		{% if sort %}
+		<option value="{{ sort }}"> {{ sort }} </option>
+		{% endif %}
+
+		<option value="None"> None </option>
+		<option value="lowest to highest"> Priority - Lowest to Highest </option>
+		<option value="highest to lowest"> Priority - Highest to Lowest </option>
+	</select>
+</form>
+</div>
+
+<div class="add-task container ml-2 mb-3">
+
+	<form method="POST" action=" {% url 'add-task' %}">
+		{% csrf_token %}
+
+		<input type="text" name="task" placeholder="Add a Task">
+		<label for="priority">Priority</label>
+
+		<select name="priority" id="priority">
+ 	 	<option value=1 >1</option>
+  		<option value=2>2</option>
+  		<option value=3>3</option>
+  		<option value=4>4</option>
+		<option value=5>5</option>
+		</select>
+		<button type="submit" class="btn btn-dark"> Add</button>
+
+
+	</form>
+</div>
+<div class="container">
+	<div>
+		{% for task in tasks %}
+	<div class="container mt-2">
+		{% if task.priority >= 4 %}
+		<div class="card">
+			<div class="card-body text-danger">
+				<h5> {{ task }}, {{ task.priority }}</h5>
+			</div>
+		  </div>
+
+
+
+
+		{% else %}
+		<div class="card">
+			<div class="card-body">
+				<h5> {{ task }}, {{ task.priority }}</h5>
+			</div>
+		  </div>
+		{% endif %}
+		<div class="d-flex justify-content-start for-buttons">
+		<div class="mr-2 edit-task">
+		<form action="{% url 'edit-task' %}" method="GET">
+			{% csrf_token %}
+			<div style="display: none;">
+			<input type="text" name="task" value="{{ task }}">
+			<label for="task_id"> ID </label>
+			<input type="text" name="task_id" value="{{ task.id }}">
+			<label for="priority">Priority level:</label>
+			<select name="priority" id="priority">
+
+				{% for i in range %}
+				{% if i == task.priority%}
+				<option value="{{i}}" selected> {{ i }}</option>
+				{% else %}
+				<option value="{{i}}"> {{i}}</option>
+				{% endif %}
+				{% endfor %}
+
+			</select>
+		</div>
+			<button type="submit" class="btn btn-outline-primary"> Edit </button>
+		</form>
+		</div>
+
+		<!-- button trigger for delete -->
+		   <!-- Form for delete -->
+		   <form action="{% url 'delete-task' %}" method="POST">
+			{% csrf_token %}
+			<div style="display: none;">
+				<input type="text" name="task_id" value="{{ task.id }}">
+			</div>
+			<div class="pull-right">
+			<button type="submit" class="btn btn-outline-danger"> Delete </button>
+		</div>
+		</form>
+	</div>
+
+
+</div>
+		{% endfor %}
+	</div>
+<!-- START NEW DIV-->
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+	edit_button = document.querySelector('.edit-button')
+	edit_profile_form = document.querySelector('.edit-profile')
+	cancel_edit = document.querySelector('.cancel-edit')
+
+	// Adding event listener
+	edit_button.addEventListener('click',  openForm)
+	//edit_task_button.addEventListener('click', openEditTask)
+	function openForm(e) {
+
+		edit_profile_form.style.display = 'block'
+	}
+	// Cancelling form
+	cancel_edit.addEventListener('click', cancelForm)
+	function cancelForm() {
+		edit_profile_form.style.display = 'none'
+	}
+</script>
+{% endblock content %}
